@@ -1,6 +1,7 @@
 const express = require("express");
 // const cors = require("cors");
 const studentRoutes = require("./src/student/routes");
+const userRoutes = require("./src/authentication/routes");
 
 const app = express();
 
@@ -17,5 +18,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/students", studentRoutes);
+app.use("/auth", userRoutes);
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
