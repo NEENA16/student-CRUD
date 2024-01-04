@@ -84,4 +84,5 @@ const loginUser = async (req, res) => {
   const token = jwtGenerator(user.rows[0].id);
   res.json({token});
 };
+
 module.exports = { registerUser, loginUser };
