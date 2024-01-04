@@ -46,15 +46,42 @@ const registerUser = async (req, res) => {
     //generating jwt token
     const token = jwtGenerator(newUser?.rows[0].id);
     res.json({ token });
-
   } catch (e) {
     console.log("error in catch", e);
     res.status(500).send("Something went wrong");
   }
 };
 
-const loginUser = (req, res) => {
-  res.send("Login User");
-};
+const loginUser = async (req, res) => {
+  //1. destructure req.body
+  //2. check if user exist (if no thow error)
+  //3. check if incoming password is same as db password
+  //4. give them the jwt token
 
+  //destructure req.body
+  const { email, password } = req.body;
+  let errors = [];
+  if (!email || !password) {
+    errors.push({ message: "Please enter all the fields" });
+  }
+  if (errors.length) {
+    return res.status(401).send(errors);
+  }
+
+  //check if user exit
+  const user = await pool.query(queries.getUserByEmail, [email]);
+  if (!user.rows.length) {
+    return res.status(401).json("User does not exist");
+  }
+
+  //check if incoming password is same as db password
+  const validPassword = await bcrypt.compare(password, user.rows[0].password);
+  if (!validPassword) {
+    return res.status(401).json("Email or Password is incorrect");
+  }
+
+  //give them the jwt token
+  const token = jwtGenerator(user.rows[0].id);
+  res.json({token});
+};
 module.exports = { registerUser, loginUser };
