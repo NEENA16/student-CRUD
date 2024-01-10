@@ -57,7 +57,7 @@ const deleteStudent = (req, res) => {
     } else {
       pool.query(queries.deleteStudent, [id], (error, results) => {
         if (error) {
-          res.status(500).send("Somethong went wrong");
+          res.status(500).send("Something went wrong");
         } else {
           res.status(200).send("Student deleted successfully");
         }

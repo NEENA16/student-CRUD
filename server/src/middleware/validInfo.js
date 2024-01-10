@@ -1,4 +1,4 @@
-// sample middleware to check wheather email is valid
+// sample middleware to check wheather details sent to /register and /login is valid
 
 module.exports = (req, res, next) => {
   const { email, name, password } = req.body;

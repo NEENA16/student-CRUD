@@ -1,4 +1,4 @@
-//check the jwt token in header is valid or not
+//check the jwt token in header is valid or not before we access protected routes
 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
@@ -12,7 +12,7 @@ module.exports = async (req, res, next) => {
     }
 
     // verify the incoming token is valid or not
-    // if verified the jwt.verify will return a payload that we can use in pur routes
+    // if verified the jwt.verify will return a payload that we can use in our routes
     const payload = jwt.verify(jwtToken, process.env.jwtSecret);
 
     req.user = payload.user; // coz in jwtGenerator we declared payload as an object with a key user and value the argument

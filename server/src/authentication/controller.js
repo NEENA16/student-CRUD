@@ -2,6 +2,7 @@ const pool = require("../../db");
 const bcrypt = require("bcrypt");
 const queries = require("./queries");
 const jwtGenerator = require("../utils/jwtGenerator");
+const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
   //1. destucture the req.body
@@ -45,9 +46,9 @@ const registerUser = async (req, res) => {
 
     //generating jwt token
     const token = jwtGenerator(newUser?.rows[0].id);
-    res.json({ token });
+
+    res.json(token);
   } catch (e) {
-    console.log("error in catch", e);
     res.status(500).send("Something went wrong");
   }
 };
@@ -56,7 +57,7 @@ const loginUser = async (req, res) => {
   //1. destructure req.body
   //2. check if user exist (if no thow error)
   //3. check if incoming password is same as db password
-  //4. give them the jwt token
+  //4. give them the jwt token access and refresh token and set refresh token in cookie (for cookie approach)
 
   //destructure req.body
   const { email, password } = req.body;
@@ -80,9 +81,40 @@ const loginUser = async (req, res) => {
     return res.status(401).json("Email or Password is incorrect");
   }
 
-  //give them the jwt token
+  //give them the jwt tokens
   const token = jwtGenerator(user.rows[0].id);
-  res.json({token});
+  res.cookie("refresh_token", token.refreshToken, { httpOnly: true }); // to set cookie in headers(in res headers get  (set-cookie: regresh_token='our token')
+  res.json(token);
 };
 
-module.exports = { registerUser, loginUser };
+const refreshToken = (req, res) => {
+  try {
+    const refreshToken = req.cookies.refresh_token;
+    console.log(refreshToken);
+    if (refreshToken === null)
+      return res.status(401).json({ error: "Null refresh token" });
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      (error, user) => {
+        if (error) return res.status(403).json({ error: error.message });
+        let tokens = jwtGenerator(user);
+        res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+        res.json(tokens);
+      }
+    );
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
+
+const logout = (req, res) => {
+  try {
+    res.clearCookie("refresh_token");
+    return res.status(200).json({ message: "refresh token deleted" });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+};
+
+module.exports = { registerUser, loginUser, refreshToken, logout };
