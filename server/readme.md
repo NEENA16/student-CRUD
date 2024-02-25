@@ -1,4 +1,4 @@
-[https://www.youtube.com/watch?v=7UQBMb8ZpuE]
+[(https://www.youtube.com/watch?v=DihOP19LQdg)]
 - student CRUD + search - node, express, postgresql, and pure sql to query the db
 
 
